@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
+        <title>Alpine Library</title>
+    </head>
+    <body>
+        
+        <div x-init="fetchBooks" x-effect="pushBooks" x-data="books" class="container d-flex flex-column justify-content-center align-items-center">
+            <div class="modal" x-show="showModal">
+                <div @click.outside="showModal=false" class="modal-box">
+                    <div class="x-btn">
+                        <svg @click="showModal = false" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                        </svg>
+                    </div>
+                    <form x-on:submit.prevent class="w-100">
+                        <input type="text" class="form-control" x-model="formData.title" placeholder="Title">
+                        <input type="text" class="form-control mt-2" x-model="formData.author" placeholder="Author">
+                        <input type="number" class="form-control mt-2" x-model="formData.pages" placeholder="Number of pages">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" x-model="formData.read" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                            Book already read?
+                            </label>
+                        </div>
+                        <button class="btn btn-primary w-100" x-on:click="addBook">Add new book</button>
+                    </form>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">No. of pages</th>
+                        <th scope="col">Read?</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="(book, index) in books" :key="index">
+                        <tr>
+                            <td x-text="book.title"></td>
+                            <td x-text="book.author"></td>
+                            <td x-text="book.pages"></td>
+                            <td>
+                                <button x-text="book.readText" @click="book.setRead()" :class="book.read === true ? 'btn btn-success' : 'btn btn-danger'"></button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <button x-show="!showModal" @click="showModal=true" class="btn btn-primary w-100" >Add new book</button>
+            
+        </div>
+        <script>
+            function Book({title="", author="", pages=0, read=false} = {}) {
+                this.title = title;
+                this.author = author;
+                this.pages = pages;
+                this.read = read;
+                Object.defineProperty(this, "readText", {
+                    get: function() {
+                        return this.read ? 'Read' : 'Not read'
+                    }
+                });
+            }
+            Book.prototype.setRead = function() {
+                console.log(this.read)
+                this.read = !this.read;
+            }
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('books', () => ({
+                    books: [],
+                    formData: new Book(),
+                    showModal: false,
+                    addBook() {
+                        this.books.push(this.formData);
+                        this.formData = new Book();
+                        this.showModal = false;
+                    },
+                    fetchBooks() {
+                        const books = JSON.parse(localStorage.getItem('myBooks'));
+                        if(books) {
+                            books.forEach(book => {
+                                this.books.push(new Book(book));
+                            })
+                        }
+                    },
+                    pushBooks() {
+                        const booksToPush = JSON.stringify(this.books);
+                        if(booksToPush !== localStorage.getItem('myBooks')) {
+                            localStorage.setItem('myBooks', booksToPush);
+                        }
+                    }
+                }));
+            })
+        </script>
+    </body>
+</html>

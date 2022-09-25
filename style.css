@@ -1,0 +1,42 @@
+.table td, th {
+    text-align: center;
+}
+
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    overflow: auto; /* Enable scroll */
+    background: rgba(0,0,0,0.4); /* Transparent background */
+}
+
+.modal-box {
+    flex: 0 0 35%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #ffffff;
+    padding: 20px;
+}
+
+.x-btn {
+    flex: 0 0 10%;
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+@media only screen and (max-width: 860px) {
+    .modal-box {
+        flex: 0 0 80%;
+    }
+}
